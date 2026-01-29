@@ -11,5 +11,6 @@ ios/App/build/
 *.aab
 *.ipa
 *.keystore
+*.pem
 www/
 .env

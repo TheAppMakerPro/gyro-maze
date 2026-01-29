@@ -1,0 +1,58 @@
+{
+    "name": "gyro-maze",
+    "version": "1.0.0",
+    "description": "Tilt your phone to roll the ball through challenging mazes! A PWA game with accelerometer controls.",
+    "main": "index.html",
+    "scripts": {
+        "start": "npx http-server . -p 3000 -c-1",
+        "dev": "npx http-server . -p 3000 -c-1 --cors",
+        "build": "npm run build:web",
+        "build:web": "rm -rf www && mkdir -p www && cp -r index.html css js icons manifest.json www/",
+        "build:icons": "node scripts/generate-icons.js",
+        "android": "npm run build && npx cap sync android && npx cap run android",
+        "ios": "npm run build && npx cap sync ios && npx cap run ios",
+        "cap:init": "npx cap init GyroMaze com.gyromaze.app --web-dir .",
+        "cap:add:ios": "npx cap add ios",
+        "cap:add:android": "npx cap add android",
+        "cap:sync": "npx cap sync",
+        "cap:open:ios": "npx cap open ios",
+        "cap:open:android": "npx cap open android",
+        "cap:run:ios": "npx cap run ios",
+        "cap:run:android": "npx cap run android",
+        "test": "echo \"No tests configured yet\" && exit 0",
+        "lint": "echo \"No linter configured yet\" && exit 0"
+    },
+    "keywords": [
+        "game",
+        "pwa",
+        "maze",
+        "puzzle",
+        "accelerometer",
+        "tilt",
+        "mobile",
+        "capacitor"
+    ],
+    "author": "GyroMaze Team",
+    "license": "MIT",
+    "dependencies": {
+        "@capacitor/core": "^6.0.0",
+        "@capacitor/motion": "^6.0.0",
+        "@capacitor/haptics": "^6.0.0",
+        "@capacitor/status-bar": "^6.0.0",
+        "@capacitor/splash-screen": "^6.0.0"
+    },
+    "devDependencies": {
+        "@capacitor/cli": "^6.0.0",
+        "@capacitor/ios": "^6.0.0",
+        "@capacitor/android": "^6.0.0",
+        "http-server": "^14.1.1"
+    },
+    "engines": {
+        "node": ">=18.0.0"
+    },
+    "capacitor": {
+        "appId": "com.gyromaze.app",
+        "appName": "GyroMaze",
+        "webDir": "."
+    }
+}

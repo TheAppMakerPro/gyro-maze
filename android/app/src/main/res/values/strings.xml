@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Maze Escape</string>
+    <string name="title_activity_main">Maze Escape</string>
+    <string name="package_name">com.gyromaze.app</string>
+    <string name="custom_url_scheme">com.gyromaze.app</string>
+</resources>

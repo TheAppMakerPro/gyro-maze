@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0a1a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="description" content="Tilt your phone to roll the ball through challenging mazes!">
+    
+    <title>Maze Escape - Tilt Ball Puzzle</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    
+    <!-- Preload fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="screen active">
+        <div class="loader-container">
+            <div class="loader-orb"></div>
+            <div class="loader-ring"></div>
+            <div class="loader-ring ring-2"></div>
+            <h1 class="loader-title">MAZE ESCAPE</h1>
+            <p class="loader-text">Initializing sensors...</p>
+            <div class="loader-bar">
+                <div class="loader-progress"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Menu Screen -->
+    <div id="menu-screen" class="screen">
+        <div class="menu-background">
+            <div class="bg-orb orb-1"></div>
+            <div class="bg-orb orb-2"></div>
+            <div class="bg-orb orb-3"></div>
+            <div class="grid-overlay"></div>
+        </div>
+        
+        <div class="menu-content">
+            <div class="logo-container">
+                <h1 class="game-logo">
+                    <span class="logo-gyro" data-text="MAZE">MAZE</span>
+                    <span class="logo-maze">ESCAPE</span>
+                </h1>
+                <p class="tagline">Tilt • Roll • Escape</p>
+            </div>
+            
+            <div class="menu-buttons">
+                <button id="btn-play" class="menu-btn btn-primary">
+                    <span class="btn-icon">▶</span>
+                    <span class="btn-text">PLAY</span>
+                </button>
+                <button id="btn-levels" class="menu-btn btn-secondary">
+                    <span class="btn-icon">◈</span>
+                    <span class="btn-text">LEVELS</span>
+                </button>
+                <div class="menu-row">
+                    <button id="btn-daily-challenge" class="menu-btn btn-small btn-accent">
+                        <span class="btn-icon">📅</span>
+                        <span class="btn-text">DAILY</span>
+                    </button>
+                    <button id="btn-achievements" class="menu-btn btn-small btn-accent">
+                        <span class="btn-icon">🏆</span>
+                        <span class="btn-text">BADGES</span>
+                    </button>
+                </div>
+                <button id="btn-store" class="menu-btn btn-secondary">
+                    <span class="btn-icon">🛒</span>
+                    <span class="btn-text">STORE</span>
+                </button>
+                <button id="btn-settings" class="menu-btn btn-secondary">
+                    <span class="btn-icon">⚙</span>
+                    <span class="btn-text">SETTINGS</span>
+                </button>
+                <button id="btn-help" class="menu-btn btn-secondary">
+                    <span class="btn-icon">❓</span>
+                    <span class="btn-text">HOW TO PLAY</span>
+                </button>
+            </div>
+
+            <!-- Streak Display -->
+            <div id="streak-display" class="streak-display" style="display: none;"></div>
+
+            <div class="coin-display" id="menu-coins">
+                <span class="coin-icon">🪙</span>
+                <span class="coin-count">0</span>
+            </div>
+
+            <div class="menu-footer">
+                <p class="version">v1.0.0</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Store Screen -->
+    <div id="store-screen" class="screen">
+        <div class="screen-header">
+            <button id="btn-back-store" class="btn-back">
+                <span>←</span>
+            </button>
+            <h2 class="screen-title">STORE</h2>
+            <div class="coin-display">
+                <span class="coin-icon">🪙</span>
+                <span class="coin-count" id="store-coins">0</span>
+            </div>
+        </div>
+
+        <div class="store-content">
+            <!-- Lucky Spin Section -->
+            <div class="store-section spin-section">
+                <h3 class="store-section-title">Lucky Spin</h3>
+                <p class="spin-desc">Win free spins by getting 3 stars!</p>
+                <button id="btn-spin" class="menu-btn btn-accent spin-btn">
+                    <span class="btn-icon">🎰</span>
+                    <span class="btn-text">SPIN TO WIN!</span>
+                    <span id="spin-badge" class="spin-badge" style="display: none;">0</span>
+                </button>
+            </div>
+
+            <!-- Ball Skins Section -->
+            <div class="store-section">
+                <h3 class="store-section-title">Ball Skins</h3>
+                <div class="store-grid" id="ball-skins-grid">
+                    <!-- Items populated by JS -->
+                </div>
+            </div>
+
+            <!-- Trail Effects Section -->
+            <div class="store-section">
+                <h3 class="store-section-title">Trail Effects</h3>
+                <div class="store-grid" id="trail-effects-grid">
+                    <!-- Items populated by JS -->
+                </div>
+            </div>
+
+            <!-- Upgrades Section -->
+            <div class="store-section">
+                <h3 class="store-section-title">Level Upgrades</h3>
+                <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: var(--spacing-md);">
+                    Required to access higher levels
+                </p>
+                <button id="btn-upgrades" class="menu-btn btn-secondary" style="width: 100%;">
+                    <span class="btn-icon">⬆️</span>
+                    <span class="btn-text">VIEW UPGRADES</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Level Select Screen -->
+    <div id="level-screen" class="screen">
+        <div class="screen-header">
+            <button id="btn-back-levels" class="btn-back">
+                <span>←</span>
+            </button>
+            <h2 class="screen-title">SELECT LEVEL</h2>
+            <div class="spacer"></div>
+        </div>
+        
+        <div class="level-grid" id="level-grid">
+            <!-- Levels will be populated by JavaScript -->
+        </div>
+        
+        <div class="level-info" id="level-info">
+            <div class="info-card">
+                <h3 id="info-level-name">Level 1</h3>
+                <div class="info-stats">
+                    <div class="stat">
+                        <span class="stat-label">Best Time</span>
+                        <span class="stat-value" id="info-best-time">--:--</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Stars</span>
+                        <span class="stat-value" id="info-stars">☆☆☆</span>
+                    </div>
+                </div>
+                <button id="btn-start-level" class="menu-btn btn-primary">
+                    <span class="btn-text">START</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Screen -->
+    <div id="settings-screen" class="screen">
+        <div class="screen-header">
+            <button id="btn-back-settings" class="btn-back">
+                <span>←</span>
+            </button>
+            <h2 class="screen-title">SETTINGS</h2>
+            <div class="spacer"></div>
+        </div>
+        
+        <div class="settings-content">
+            <div class="setting-group">
+                <label class="setting-label">Sensitivity</label>
+                <div class="setting-control">
+                    <input type="range" id="sensitivity-slider" min="0.5" max="2" step="0.1" value="1">
+                    <span class="setting-value" id="sensitivity-value">1.0x</span>
+                </div>
+            </div>
+            
+            <div class="setting-group">
+                <label class="setting-label">Sound Effects</label>
+                <div class="setting-control">
+                    <button id="toggle-sfx" class="toggle-btn active">
+                        <span class="toggle-indicator"></span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="setting-group">
+                <label class="setting-label">Music</label>
+                <div class="setting-control">
+                    <button id="toggle-music" class="toggle-btn active">
+                        <span class="toggle-indicator"></span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="setting-group">
+                <label class="setting-label">Vibration</label>
+                <div class="setting-control">
+                    <button id="toggle-vibration" class="toggle-btn active">
+                        <span class="toggle-indicator"></span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <label class="setting-label">Voice</label>
+                <div class="setting-control">
+                    <button id="toggle-voice" class="toggle-btn active">
+                        <span class="toggle-indicator"></span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <label class="setting-label">Calibrate</label>
+                <div class="setting-control">
+                    <button id="btn-calibrate" class="action-btn">
+                        <span>SET NEUTRAL</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="setting-group danger">
+                <label class="setting-label">Reset Progress</label>
+                <div class="setting-control">
+                    <button id="btn-reset" class="action-btn danger">
+                        <span>RESET ALL</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game-screen" class="screen">
+        <!-- Game HUD -->
+        <div class="game-hud">
+            <div class="hud-left">
+                <button id="btn-pause" class="hud-btn">
+                    <span>⏸</span>
+                </button>
+            </div>
+            <div class="hud-center">
+                <div class="level-indicator">
+                    <span id="current-level-display">Level 1</span>
+                </div>
+                <div class="timer" id="game-timer">00:00</div>
+            </div>
+            <div class="hud-right">
+                <div class="hud-lives lives-display">
+                    <span class="heart-icon">❤️</span>
+                    <span class="lives-count">4</span>
+                </div>
+                <div class="hud-coins">
+                    <span class="coin-icon-small">🪙</span>
+                    <span class="coin-count" id="hud-coins">0</span>
+                </div>
+                <button id="btn-timewarp" class="hud-btn powerup-btn hidden" title="Slow Motion">
+                    <span>⏱️</span>
+                </button>
+                <button id="btn-restart" class="hud-btn">
+                    <span>↻</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Game Canvas Container -->
+        <div class="game-container">
+            <canvas id="game-canvas"></canvas>
+        </div>
+        
+        <!-- Touch Controls Fallback (for devices without accelerometer) -->
+        <div id="touch-controls" class="touch-controls hidden">
+            <div class="touch-indicator">
+                <div class="touch-center"></div>
+                <div class="touch-arrow arrow-up">▲</div>
+                <div class="touch-arrow arrow-down">▼</div>
+                <div class="touch-arrow arrow-left">◀</div>
+                <div class="touch-arrow arrow-right">▶</div>
+            </div>
+            <p class="touch-hint">Touch and drag to control</p>
+        </div>
+    </div>
+
+    <!-- Pause Modal -->
+    <div id="pause-modal" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <h2 class="modal-title">PAUSED</h2>
+            <div class="modal-buttons">
+                <button id="btn-resume" class="menu-btn btn-primary">
+                    <span class="btn-text">RESUME</span>
+                </button>
+                <button id="btn-restart-modal" class="menu-btn btn-secondary">
+                    <span class="btn-text">RESTART</span>
+                </button>
+                <button id="btn-quit" class="menu-btn btn-secondary">
+                    <span class="btn-text">QUIT</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Win Modal -->
+    <div id="win-modal" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content victory">
+            <div class="confetti-container" id="confetti"></div>
+            <h2 class="modal-title victory-title">LEVEL COMPLETE!</h2>
+            <div class="victory-stats">
+                <div class="stars-display" id="stars-earned">
+                    <span class="star earned">★</span>
+                    <span class="star earned">★</span>
+                    <span class="star">★</span>
+                </div>
+                <div class="time-display">
+                    <span class="time-label">Time</span>
+                    <span class="time-value" id="final-time">00:00</span>
+                </div>
+                <div class="coins-earned-display" id="coins-earned">
+                    <span class="coins-label">Coins Earned</span>
+                    <span class="coins-value">🪙 +0</span>
+                </div>
+                <div class="best-indicator" id="new-best" style="display: none;">
+                    <span>🏆 NEW BEST!</span>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button id="btn-next-level" class="menu-btn btn-primary">
+                    <span class="btn-text">NEXT LEVEL</span>
+                </button>
+                <button id="btn-replay" class="menu-btn btn-secondary">
+                    <span class="btn-text">REPLAY</span>
+                </button>
+                <button id="btn-win-quit" class="menu-btn btn-secondary">
+                    <span class="btn-text">MENU</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lose Modal -->
+    <div id="lose-modal" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content defeat">
+            <h2 class="modal-title defeat-title">FELL INTO A HOLE!</h2>
+            <p class="defeat-message">The ball slipped through a hole...</p>
+            <p class="lives-remaining"><span class="heart-icon">❤️</span> 3 lives remaining</p>
+            <div class="modal-buttons">
+                <button id="btn-try-again" class="menu-btn btn-primary">
+                    <span class="btn-text">TRY AGAIN</span>
+                </button>
+                <button id="btn-lose-quit" class="menu-btn btn-secondary">
+                    <span class="btn-text">QUIT</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Permission Modal -->
+    <div id="permission-modal" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content permission">
+            <h2 class="modal-title">MOTION SENSORS</h2>
+            <p class="permission-text">
+                This game uses your device's motion sensors for tilt controls.
+                Please grant permission to continue.
+            </p>
+            <div class="modal-buttons">
+                <button id="btn-grant-permission" class="menu-btn btn-primary">
+                    <span class="btn-text">ENABLE TILT</span>
+                </button>
+                <button id="btn-copy-url" class="menu-btn btn-secondary" style="display: none;">
+                    <span class="btn-text">COPY URL FOR SAFARI</span>
+                </button>
+                <button id="btn-use-touch" class="menu-btn btn-secondary">
+                    <span class="btn-text">USE TOUCH</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help/Instructions Modal -->
+    <div id="help-modal" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content help-content">
+            <h2 class="modal-title">HOW TO PLAY</h2>
+            <div class="help-scroll">
+                <div class="help-section">
+                    <h3>🎮 CONTROLS</h3>
+                    <p>Tilt your device to roll the ball through the maze. Reach the star (★) to complete each level!</p>
+                </div>
+
+                <div class="help-section">
+                    <h3>⚠️ AVOID</h3>
+                    <p><strong>Walls:</strong> Hitting walls bounces you back like a pinball - try to navigate smoothly!</p>
+                    <p><strong>Holes:</strong> Black holes will swallow your ball and cost you a life. Be careful!</p>
+                </div>
+
+                <div class="help-section">
+                    <h3>❤️ LIVES</h3>
+                    <p>You start with <strong>4 lives</strong>. Falling into a hole costs 1 life.</p>
+                    <p>Find <strong>heart pickups</strong> in levels for extra lives!</p>
+                    <p>If you run out of lives:</p>
+                    <ul>
+                        <li>Buy 3 lives: 50 coins</li>
+                        <li>Continue from current level: 100 coins</li>
+                        <li>Or restart from Level 1 for free</li>
+                    </ul>
+                </div>
+
+                <div class="help-section">
+                    <h3>🪙 COINS</h3>
+                    <p>Collect golden coins in each level for rewards!</p>
+                    <p><strong>Earning coins:</strong></p>
+                    <ul>
+                        <li>Collect in-level coins: 5 coins each</li>
+                        <li>Complete a level: 10+ coins (more for harder levels)</li>
+                        <li>Star bonuses: 5 coins per star</li>
+                        <li>New best time: 10 bonus coins</li>
+                        <li>First completion: 20+ bonus coins</li>
+                        <li>Perfect run (3 stars + all coins): 50 bonus coins!</li>
+                    </ul>
+                </div>
+
+                <div class="help-section">
+                    <h3>⭐ STARS</h3>
+                    <p>Earn 1-3 stars based on completion time. Faster = more stars!</p>
+                </div>
+
+                <div class="help-section">
+                    <h3>⬆️ UPGRADES (Required!)</h3>
+                    <p>Upgrades unlock access to higher levels. <strong>You must purchase upgrades to progress!</strong></p>
+                    <ul>
+                        <li><strong>🎯 Steady Hand</strong> (100 coins) - Required for Levels 11+</li>
+                        <li><strong>⚫ Compact Ball</strong> (250 coins) - Required for Levels 21+</li>
+                        <li><strong>🪶 Feather Touch</strong> (400 coins) - Required for Levels 31+</li>
+                        <li><strong>🛡️ Safety Shield</strong> (600 coins) - Required for Levels 41+</li>
+                        <li><strong>🧭 Pathfinder</strong> (800 coins) - Required for Levels 51+</li>
+                        <li><strong>⏱️ Time Warp</strong> (1000 coins) - Required for Levels 61+</li>
+                        <li><strong>👻 Ghost Phase</strong> (1500 coins) - Required for Levels 71+</li>
+                        <li><strong>🧲 Coin Magnet</strong> (2000 coins) - Required for Levels 81+</li>
+                        <li><strong>⚡ Speed Surge</strong> (2500 coins) - Required for Levels 91+</li>
+                        <li><strong>🔑 Master Key</strong> (5000 coins) - Required for Levels 96+</li>
+                    </ul>
+                </div>
+
+                <div class="help-section">
+                    <h3>🛒 STORE</h3>
+                    <p>Customize your ball and trail with cosmetic items purchased with coins!</p>
+                </div>
+
+                <div class="help-section">
+                    <h3>📅 DAILY REWARDS</h3>
+                    <p>Log in every day to claim escalating rewards!</p>
+                    <ul>
+                        <li>Day 1-3: 25-75 coins</li>
+                        <li>Day 4: Mystery Box!</li>
+                        <li>Day 5-6: 150-200 coins</li>
+                        <li>Day 7: MEGA REWARD (500 coins + 3 free spins!)</li>
+                    </ul>
+                    <p><strong>Don't break your streak!</strong> Missing a day resets your progress.</p>
+                </div>
+
+                <div class="help-section">
+                    <h3>🔥 WIN STREAKS</h3>
+                    <p>Complete levels in a row for bonus multipliers!</p>
+                    <ul>
+                        <li>2-4 wins: 1.25x coin bonus</li>
+                        <li>5-9 wins: 1.5x coin bonus</li>
+                        <li>10+ wins: 2x coin bonus!</li>
+                    </ul>
+                    <p>Falling into a hole breaks your streak!</p>
+                </div>
+
+                <div class="help-section">
+                    <h3>🎰 LUCKY SPIN</h3>
+                    <p>Earn free spins by getting 3 stars on levels! Prizes include:</p>
+                    <ul>
+                        <li>10-250 coins</li>
+                        <li>Extra lives</li>
+                        <li>2X multiplier for next win!</li>
+                    </ul>
+                </div>
+
+                <div class="help-section">
+                    <h3>🏆 ACHIEVEMENTS</h3>
+                    <p>Unlock badges for coin rewards! Examples:</p>
+                    <ul>
+                        <li>Speed Demon: Complete a level in under 10 seconds</li>
+                        <li>Untouchable: Complete without hitting walls</li>
+                        <li>Legendary: Win 10 levels in a row</li>
+                        <li>...and many more!</li>
+                    </ul>
+                </div>
+
+                <div class="help-section">
+                    <h3>💡 TIPS</h3>
+                    <ul>
+                        <li>Go slow near holes - precision beats speed!</li>
+                        <li>Collect coins in dead-ends before heading to the goal</li>
+                        <li>Save coins for upgrades to unlock new levels</li>
+                        <li>Replay levels for better times and more stars</li>
+                        <li>Login daily to maintain your reward streak!</li>
+                        <li>Get 3 stars for a chance at free spins!</li>
+                    </ul>
+                </div>
+            </div>
+            <button id="btn-close-help" class="menu-btn btn-primary">
+                <span class="btn-text">GOT IT!</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
